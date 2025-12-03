@@ -1,5 +1,6 @@
 // import { useEffect, useState } from "react";
 // import { loadWords } from "./wordle.js";
+import "./App.css";
 import WordleHelper from "./wordleHelper.js";
 
 function App() {
@@ -15,17 +16,10 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        {/*<p>Total words: {words.length}</p>*/}
-        {/* <p>5-letter words: {filtered.length}</p> */}
-      </header>
-      <br/>
-      <br/>
       <div>
         <WordleHelper/>
         {/* <WordleHelper/> */}
       </div>
-      {/* <div><LetterSelector/></div> */}
     </div>
   );
 }
