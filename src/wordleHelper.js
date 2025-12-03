@@ -78,6 +78,8 @@ export default function WordleHelper() {
       setter("");
     } else if (ch >= "A" && ch <= "Z") {
       setter(ch);
+      // If this letter is in eliminatedLetters, remove it
+      setEliminatedLetters((prev) => prev.filter((l) => l !== ch));
     } else {
       // Non A-Z char -> treat as empty
       setter("");
@@ -90,6 +92,8 @@ export default function WordleHelper() {
       o.value.toUpperCase()
     );
     setter(selected);
+    // If any of these letters are in eliminatedLetters, remove them
+    setEliminatedLetters((prev) => prev.filter((l) => !selected.includes(l)));
   };
 
   // Handler for eliminated select (multiple)
@@ -97,7 +101,9 @@ export default function WordleHelper() {
     const selected = Array.from(e.target.selectedOptions).map((o) =>
       o.value.toUpperCase()
     );
-    setEliminatedLetters(selected);
+    // Filter out any letters that are in confirmedLetters
+    const filtered = selected.filter((letter) => !confirmedLetters.includes(letter));
+    setEliminatedLetters(filtered);
   };
 
   // NEW: Handler for confirmed letters select (multiple)
@@ -297,11 +303,11 @@ export default function WordleHelper() {
   };
 
   return (
-    <div className="container my-4">
+    <div className="container my-4 p-4 border rounded">
       {/* WORLDE form (display-only 5 boxes centered horizontally) */}
-      <div className="mb-4">
-        <h5 className="text-center">worldle</h5>
-        <div className="d-flex justify-content-center align-items-center">
+      <div className="mb-6">
+        <h3 className="text-center">Worldle Hero</h3>
+        <div className="d-flex justify-content-center align-items-center my-2 mb-4">
           {renderWorldleBox(indexOne)}
           {renderWorldleBox(indexTwo)}
           {renderWorldleBox(indexThree)}
@@ -311,8 +317,12 @@ export default function WordleHelper() {
       </div>
 
       {/* Eliminated form */}
-      <div className="mb-4">
-        <h5>Eliminated Letters (select multiple by holding down CTR/Command)</h5>
+      <div className="mb-4 offset-md-2">
+        <div className="row">
+          <div className="col-md-6">
+        <h5 className="pt-2"><strong>Eliminated Letters</strong> (select multiple by holding down CTR/Command)</h5>
+        </div>
+        </div>
         <div className="row">
           <div className="col-md-6">
             <select
@@ -414,7 +424,7 @@ export default function WordleHelper() {
 
       {/* IndexDetails form */}
       <div className="mb-4">
-        <h5>Let's find this word!</h5>
+        <h2 className="text-center">Let's crack this word!</h2>
 
         {/* We'll render 5 formGroups in pairs (10 inputs) */}
         <div className="row">
@@ -440,7 +450,7 @@ export default function WordleHelper() {
               </div>
               <div>
                 <label className="form-label">
-                  Matched Letters but Exempt at First Position (hold down CTR/Command to select multiple)
+                  Confirmed Letter(s) but Invalid in this Position (hold down CTR/Command to select multiple)
                 </label>
                 <select
                   multiple
@@ -463,7 +473,7 @@ export default function WordleHelper() {
                   Reset Exempt
                 </button>
                 <div className="mt-2">
-                  <label className="form-label">Selected exempt letters</label>
+                  <label className="form-label">Confirmed letters - Other position(s)</label>
                   <div>
                     {indexOneExempt.length === 0 && (
                       <div className="text-muted">No exempt letters selected</div>
@@ -504,7 +514,7 @@ export default function WordleHelper() {
               </div>
               <div>
                 <label className="form-label">
-                  Matched Letters but Exempt at Second Position (hold down CTR/Command to select multiple)
+                  Confirmed Letter(s) but Invalid in this Position (hold down CTR/Command to select multiple)
                 </label>
                 <select
                   multiple
@@ -527,7 +537,7 @@ export default function WordleHelper() {
                   Reset Exempt
                 </button>
                 <div className="mt-2">
-                  <label className="form-label">Selected exempt letters</label>
+                  <label className="form-label">Confirmed letters - Other position(s)</label>
                   <div>
                     {indexTwoExempt.length === 0 && (
                       <div className="text-muted">No exempt letters selected</div>
@@ -568,7 +578,7 @@ export default function WordleHelper() {
               </div>
               <div>
                 <label className="form-label">
-                  Matched Letters but Exempt at Third Position (hold down CTR/Command to select multiple)
+                  Confirmed Letter(s) but Invalid in this Position (hold down CTR/Command to select multiple)
                 </label>
                 <select
                   multiple
@@ -591,7 +601,7 @@ export default function WordleHelper() {
                   Reset Exempt
                 </button>
                 <div className="mt-2">
-                  <label className="form-label">Selected exempt letters</label>
+                  <label className="form-label">Confirmed letters - Other position(s)</label>
                   <div>
                     {indexThreeExempt.length === 0 && (
                       <div className="text-muted">No exempt letters selected</div>
@@ -632,7 +642,7 @@ export default function WordleHelper() {
               </div>
               <div>
                 <label className="form-label">
-                  Matched Letters but Exempt at Fourth Position (hold down CTR/Command to select multiple)
+                  Confirmed Letter(s) but Invalid in this Position (hold down CTR/Command to select multiple)
                 </label>
                 <select
                   multiple
@@ -655,7 +665,7 @@ export default function WordleHelper() {
                   Reset Exempt
                 </button>
                 <div className="mt-2">
-                  <label className="form-label">Selected exempt letters</label>
+                  <label className="form-label">Confirmed letters - Other position(s)</label>
                   <div>
                     {indexFourExempt.length === 0 && (
                       <div className="text-muted">No exempt letters selected</div>
@@ -675,7 +685,7 @@ export default function WordleHelper() {
           </div>
 
           {/* indexFive group */}
-          <div className="col-md-6 mb-3">
+          <div className="col-md-6 mb-3 offset-md-3">
             <div className="card p-2">
               <div className="mb-2">
                 <label className="form-label">Fifth Letter - Correct Letter</label>
@@ -696,7 +706,7 @@ export default function WordleHelper() {
               </div>
               <div>
                 <label className="form-label">
-                  Matched Letters but Exempt at Fifth Position (hold down CTR/Command to select multiple)
+                  Confirmed Letter(s) but Invalid in this Position (hold down CTR/Command to select multiple)
                 </label>
                 <select
                   multiple
@@ -719,7 +729,7 @@ export default function WordleHelper() {
                   Reset Exempt
                 </button>
                 <div className="mt-2">
-                  <label className="form-label">Selected exempt letters</label>
+                  <label className="form-label">Confirmed letters - Other position(s)</label>
                   <div>
                     {indexFiveExempt.length === 0 && (
                       <div className="text-muted">No exempt letters selected</div>
@@ -752,7 +762,7 @@ export default function WordleHelper() {
 
       {/* Display filteredMatches */}
       <div className="mb-4">
-        <h5>Filtered Matches</h5>
+        <h5>Solutions Lair</h5>
         <div className="card p-2">
           {filteredMatches.length === 0 ? (
             <div className="text-muted">
