@@ -1,6 +1,50 @@
 import React, { useState, useEffect, useCallback } from "react";
-// Make sure to import `filtered` from wherever it lives in your project:
-import { loadWords } from "./wordle.js"; // <- adjust path as needed
+import { loadWords } from "./wordle";
+// // Mock loadWords function for demonstration
+// const loadWords = async () => {
+//   // Sample 5-letter words for testing
+//   const sampleWords = [
+//     "apple", "about", "above", "abuse", "actor",
+//     "acute", "admit", "adopt", "adult", "after",
+//     "again", "agent", "agree", "ahead", "alarm",
+//     "album", "alert", "alike", "alive", "allow",
+//     "alone", "along", "alter", "among", "anger",
+//     "angle", "angry", "apart", "apple", "apply",
+//     "arena", "argue", "arise", "array", "aside",
+//     "asset", "audio", "audit", "avoid", "award",
+//     "aware", "badly", "baker", "bases", "basic",
+//     "basis", "beach", "began", "begin", "begun",
+//     "being", "below", "bench", "billy", "birth",
+//     "black", "blame", "blind", "block", "blood",
+//     "board", "boost", "booth", "bound", "brain",
+//     "brand", "bread", "break", "breed", "brief",
+//     "bring", "broad", "broke", "brown", "build",
+//     "built", "buyer", "cable", "calif", "carry",
+//     "catch", "cause", "chain", "chair", "chart",
+//     "chase", "cheap", "check", "chest", "chief",
+//     "child", "china", "chose", "civil", "claim",
+//     "class", "clean", "clear", "click", "clock",
+//     "close", "coach", "coast", "could", "count",
+//     "court", "cover", "craft", "crash", "crazy",
+//     "cream", "crime", "cross", "crowd", "crown",
+//     "crude", "cycle", "daily", "dance", "dated",
+//     "dealt", "death", "debut", "delay", "depth",
+//     "doing", "doubt", "dozen", "draft", "drama",
+//     "drank", "drawn", "dream", "dress", "drill",
+//     "drink", "drive", "drove", "dying", "eager",
+//     "early", "earth", "eight", "elite", "empty",
+//     "enemy", "enjoy", "enter", "entry", "equal",
+//     "error", "event", "every", "exact", "exist",
+//     "extra", "faith", "false", "fault", "fiber",
+//     "field", "fifth", "fifty", "fight", "final",
+//     "first", "fixed", "flash", "fleet", "floor",
+//     "fluid", "focus", "force", "forth", "forty",
+//     "forum", "found", "frame", "frank", "fraud",
+//     "fresh", "front", "fruit", "fully", "funny"
+//   ];
+  
+//   return { filtered: sampleWords };
+// };
 
 export default function WordleHelper() {
   // Index letter states (single char or "")
@@ -152,28 +196,8 @@ export default function WordleHelper() {
 
   // Core matching logic (computes filteredMatches based on current states)
   const computeFilteredMatches = useCallback(() => {
-    // Check if any filtering criteria has been set
-    const hasIndexLetters = indexOne || indexTwo || indexThree || indexFour || indexFive;
-    const hasExemptLetters = 
-      indexOneExempt.length > 0 ||
-      indexTwoExempt.length > 0 ||
-      indexThreeExempt.length > 0 ||
-      indexFourExempt.length > 0 ||
-      indexFiveExempt.length > 0;
-    const hasEliminatedLetters = eliminatedLetters.length > 0;
-    const hasConfirmedLetters = confirmedLetters.length > 0;
-
-    // If no criteria set, don't compute matches
-    if (!hasIndexLetters && !hasExemptLetters && !hasEliminatedLetters && !hasConfirmedLetters) {
-      setFilteredMatches([]);
-      return;
-    }
-
     // Ensure working on uppercase and do not mutate `filtered`
     const source = Array.isArray(filtered) ? filtered : [];
-
-    // Ensure working on uppercase and do not mutate `filtered`
-    //const source = Array.isArray(filtered) ? filtered : [];
 
     // Normalize source to uppercase 5-letter words only
     const normalized = source
@@ -273,7 +297,7 @@ export default function WordleHelper() {
   }, []);
 
   // Small helper to render a single worldle box (display-only input)
-  const renderWorldleBox = (value) => {
+  const renderWorldleBox = (value, placeholder = "") => {
     const hasLetter = typeof value === "string" && value.length === 1;
     const classes = [
       "form-control",
@@ -289,7 +313,8 @@ export default function WordleHelper() {
       lineHeight: "60px",
       display: "inline-block",
       fontSize: "1.5rem",
-      backgroundColor: hasLetter ? "#28a745" : "#e9ecef",
+      // background color conditional:
+      backgroundColor: hasLetter ? "#28a745" : "#e9ecef", // green / lightgray (bootstrap colors)
       color: hasLetter ? "#fff" : "#000",
       borderRadius: 6,
       border: "1px solid #ccc",
@@ -370,7 +395,7 @@ export default function WordleHelper() {
 
       {/* NEW: Confirmed Letters form */}
       <div className="mb-4">
-        <h5>Word Contains Following Letters (select multiple by holding down CTR/Command)</h5>
+        <h5>Word's Confirmed Letters (select multiple by holding down CTR/Command)</h5>
         <div className="row">
           <div className="col-md-6">
             <select
@@ -761,10 +786,12 @@ export default function WordleHelper() {
       <div className="mb-4">
         <h5>Filtered Matches</h5>
         <div className="card p-2">
-          {filteredMatches.length === 0 ? (
+          {filteredMatches === "" ? (
             <div className="text-muted">
-              No matches computed yet
+              No matches computed yet (initial state is empty string).
             </div>
+          ) : filteredMatches.length === 0 ? (
+            <div>No matching words found.</div>
           ) : (
             <div className="d-flex flex-wrap">
               {filteredMatches.map((w) => (
