@@ -1,0 +1,17 @@
+const words = [
+  "a",
+  "aa",
+  "aaa",
+  "aah",
+  "aahed",
+  "aahing",
+  "aahs",
+  "aal",
+  "aalii",
+  "aaliis",
+  "aals",
+  "aam",
+  "aani",
+  "aardvark"
+]
+
