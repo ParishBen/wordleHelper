@@ -1,70 +1,40 @@
-# Getting Started with Create React App
+WordleHelper
+WordleHelper is a React-based tool designed to help players analyze and filter potential Wordle solutions. It allows users to enter known letters, excluded letters, positional constraints, and other filtering options to quickly narrow down valid five-letter words.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+🚀 Features
 
-## Available Scripts
+✅ Dynamic Letter Filtering
+Select letters that must appear in the solution (confirmed letters).
+Select letters that are eliminated.
+Set positional letters (index 1–5).
+Specify exempt letters per position to match Wordle’s yellow tile logic.
 
-In the project directory, you can run:
+✅ Smart State Synchronization
+Changing any positional letter automatically updates the confirmedLetters list.
+Exempt letters at each index also sync into confirmedLetters (no duplicates).
+Buttons allow removal of:
+confirmed letters
+eliminated letters
+positional letters
+exempt letters
 
-### `npm start`
+✅ Automatic Word Matching
+The helper filters the dictionary of 5-letter words by applying:
+🟩 Correct letters at fixed positions
+🟨 Exempt (yellow) letters per index
+⬛ Eliminated (gray) letters
+🔤 Required confirmed letters
+All rules are enforced together to avoid contradictions, returning only valid matches.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+✅ User Controls
+Reset buttons for:
+All index details
+Individual positional letters
+Individual exempt letters
+Each letter category displays removable “chips” or buttons for easy updates.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+🛠 Tech Stack
+React (Functional Components + Hooks)
+JavaScript
+Bootstrap for layout and styling
+Custom helper functions for advanced Wordle-style filtering logic
