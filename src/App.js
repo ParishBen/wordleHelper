@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { loadWords } from "./wordle.js";
+// import { useEffect, useState } from "react";
+// import { loadWords } from "./wordle.js";
 import WordleHelper from "./wordleHelper.js";
 
 function App() {

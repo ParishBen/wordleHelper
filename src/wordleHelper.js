@@ -33,8 +33,8 @@ export default function WordleHelper() {
   );
 
   // Normalize helpers
-  const normChar = (c) =>
-    typeof c === "string" && c.length ? c.trim().toUpperCase().slice(0, 1) : "";
+  // const normChar = (c) =>
+  //   typeof c === "string" && c.length ? c.trim().toUpperCase().slice(0, 1) : "";
 
   // NEW: Effect to sync confirmedLetters with index positions and exempt arrays
   useEffect(() => {
@@ -107,12 +107,12 @@ export default function WordleHelper() {
   };
 
   // NEW: Handler for confirmed letters select (multiple)
-  const handleConfirmedChange = (e) => {
-    const selected = Array.from(e.target.selectedOptions).map((o) =>
-      o.value.toUpperCase()
-    );
-    setConfirmedLetters(selected);
-  };
+  // const handleConfirmedChange = (e) => {
+  //   const selected = Array.from(e.target.selectedOptions).map((o) =>
+  //     o.value.toUpperCase()
+  //   );
+  //   setConfirmedLetters(selected);
+  // };
 
 
   // Remove single eliminated letter via UI button
