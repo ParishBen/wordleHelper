@@ -108,13 +108,10 @@ export default function WordleHelper() {
     setConfirmedLetters(selected);
   };
 
+
   // Remove single eliminated letter via UI button
   const removeEliminatedLetter = (letter) =>
     setEliminatedLetters((prev) => prev.filter((l) => l !== letter));
-
-  // NEW: Remove single confirmed letter via UI button
-  const removeConfirmedLetter = (letter) =>
-    setConfirmedLetters((prev) => prev.filter((l) => l !== letter));
 
   // NEW: Individual reset functions for each index position
   const resetIndexOne = () => setIndexOne("");
@@ -142,13 +139,11 @@ export default function WordleHelper() {
     setIndexThreeExempt([]);
     setIndexFourExempt([]);
     setIndexFiveExempt([]);
+    setEliminatedLetters([]);
   };
 
   // Reset eliminated
   const resetEliminated = () => setEliminatedLetters([]);
-
-  // NEW: Reset confirmed letters
-  const resetConfirmed = () => setConfirmedLetters([]);
 
   // Core matching logic (computes filteredMatches based on current states)
   const computeFilteredMatches = useCallback(() => {
@@ -172,8 +167,6 @@ export default function WordleHelper() {
     // Ensure working on uppercase and do not mutate `filtered`
     const source = Array.isArray(filtered) ? filtered : [];
 
-    // Ensure working on uppercase and do not mutate `filtered`
-    //const source = Array.isArray(filtered) ? filtered : [];
 
     // Normalize source to uppercase 5-letter words only
     const normalized = source
@@ -369,7 +362,7 @@ export default function WordleHelper() {
       </div>
 
       {/* NEW: Confirmed Letters form */}
-      <div className="mb-4">
+      {/* <div className="mb-4">
         <h5>Word Contains Following Letters (select multiple by holding down CTR/Command)</h5>
         <div className="row">
           <div className="col-md-6">
@@ -417,7 +410,7 @@ export default function WordleHelper() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* IndexDetails form */}
       <div className="mb-4">
