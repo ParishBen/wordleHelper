@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-// Make sure to import `filtered` from wherever it lives in your project:
-import { loadWords } from "./wordle.js"; // <- adjust path as needed
+import { loadWords } from "./wordle";
+
 
 export default function WordleHelper() {
   // Index letter states (single char or "")
@@ -11,7 +11,6 @@ export default function WordleHelper() {
   const [indexFive, setIndexFive] = useState("");
   const [filtered, setFiltered] = useState([]);
 
-
   // Exempt arrays for each index (arrays of uppercase letters)
   const [indexOneExempt, setIndexOneExempt] = useState([]);
   const [indexTwoExempt, setIndexTwoExempt] = useState([]);
@@ -21,6 +20,9 @@ export default function WordleHelper() {
 
   // eliminated letters (array of uppercase letters)
   const [eliminatedLetters, setEliminatedLetters] = useState([]);
+
+  // NEW: confirmed letters (array of uppercase letters)
+  const [confirmedLetters, setConfirmedLetters] = useState([]);
 
   // filteredMatches initially "" (per your spec). Will become array when computed.
   const [filteredMatches, setFilteredMatches] = useState([]);
@@ -33,6 +35,40 @@ export default function WordleHelper() {
   // Normalize helpers
   const normChar = (c) =>
     typeof c === "string" && c.length ? c.trim().toUpperCase().slice(0, 1) : "";
+
+  // NEW: Effect to sync confirmedLetters with index positions and exempt arrays
+  useEffect(() => {
+    const newConfirmed = new Set();
+
+    // Add all correct letters from index positions
+    [indexOne, indexTwo, indexThree, indexFour, indexFive].forEach((letter) => {
+      if (letter) newConfirmed.add(letter.toUpperCase());
+    });
+
+    // Add all exempt letters from all positions
+    [
+      indexOneExempt,
+      indexTwoExempt,
+      indexThreeExempt,
+      indexFourExempt,
+      indexFiveExempt,
+    ].forEach((exemptArray) => {
+      exemptArray.forEach((letter) => newConfirmed.add(letter.toUpperCase()));
+    });
+
+    setConfirmedLetters(Array.from(newConfirmed).sort());
+  }, [
+    indexOne,
+    indexTwo,
+    indexThree,
+    indexFour,
+    indexFive,
+    indexOneExempt,
+    indexTwoExempt,
+    indexThreeExempt,
+    indexFourExempt,
+    indexFiveExempt,
+  ]);
 
   // Handler for known letter inputs (accept A-Z or ?). If "?" or invalid -> keep state as ""
   const handleKnownLetterChange = (setter) => (e) => {
@@ -64,9 +100,35 @@ export default function WordleHelper() {
     setEliminatedLetters(selected);
   };
 
+  // NEW: Handler for confirmed letters select (multiple)
+  const handleConfirmedChange = (e) => {
+    const selected = Array.from(e.target.selectedOptions).map((o) =>
+      o.value.toUpperCase()
+    );
+    setConfirmedLetters(selected);
+  };
+
   // Remove single eliminated letter via UI button
   const removeEliminatedLetter = (letter) =>
     setEliminatedLetters((prev) => prev.filter((l) => l !== letter));
+
+  // NEW: Remove single confirmed letter via UI button
+  const removeConfirmedLetter = (letter) =>
+    setConfirmedLetters((prev) => prev.filter((l) => l !== letter));
+
+  // NEW: Individual reset functions for each index position
+  const resetIndexOne = () => setIndexOne("");
+  const resetIndexTwo = () => setIndexTwo("");
+  const resetIndexThree = () => setIndexThree("");
+  const resetIndexFour = () => setIndexFour("");
+  const resetIndexFive = () => setIndexFive("");
+
+  // NEW: Individual reset functions for each exempt array
+  const resetIndexOneExempt = () => setIndexOneExempt([]);
+  const resetIndexTwoExempt = () => setIndexTwoExempt([]);
+  const resetIndexThreeExempt = () => setIndexThreeExempt([]);
+  const resetIndexFourExempt = () => setIndexFourExempt([]);
+  const resetIndexFiveExempt = () => setIndexFiveExempt([]);
 
   // Reset IndexDetails (all index known letters and exempt arrays)
   const resetIndexDetails = () => {
@@ -84,6 +146,9 @@ export default function WordleHelper() {
 
   // Reset eliminated
   const resetEliminated = () => setEliminatedLetters([]);
+
+  // NEW: Reset confirmed letters
+  const resetConfirmed = () => setConfirmedLetters([]);
 
   // Core matching logic (computes filteredMatches based on current states)
   const computeFilteredMatches = useCallback(() => {
@@ -114,10 +179,18 @@ export default function WordleHelper() {
       )
     );
 
+    // NEW: Create a set of confirmed letters that must be in the word
+    const confirmedSet = new Set(
+      (Array.isArray(confirmedLetters) ? confirmedLetters : []).map((l) =>
+        l.toUpperCase()
+      )
+    );
+
     // Filtering step:
     // 1) If exact char present for position i -> require word[i] === exact
     // 2) If exact missing for position i but exempts present -> word[i] must NOT be any exempt letters
-    // 3) Finally exclude any word containing any letter in eliminatedLetters (anywhere)
+    // 3) Exclude any word containing any letter in eliminatedLetters (anywhere)
+    // 4) NEW: Ensure word contains ALL letters in confirmedLetters
     const results = normalized.filter((word) => {
       // check exacts/exempts per index
       for (let i = 0; i < 5; i++) {
@@ -139,6 +212,12 @@ export default function WordleHelper() {
         if (word.includes(e)) return false;
       }
 
+      // NEW: ensure word contains ALL confirmed letters
+      for (const c of confirmedSet) {
+        if (!c) continue;
+        if (!word.includes(c)) return false;
+      }
+
       return true;
     });
 
@@ -157,34 +236,21 @@ export default function WordleHelper() {
     indexFourExempt,
     indexFiveExempt,
     eliminatedLetters,
+    confirmedLetters,
+    filtered,
   ]);
 
-  // Recompute whenever index/exempt/eliminated state changes (on each keystroke/change)
+  // Recompute whenever index/exempt/eliminated/confirmed state changes
   useEffect(() => {
     computeFilteredMatches();
-  }, [
-    indexOne,
-    indexTwo,
-    indexThree,
-    indexFour,
-    indexFive,
-    indexOneExempt,
-    indexTwoExempt,
-    indexThreeExempt,
-    indexFourExempt,
-    indexFiveExempt,
-    eliminatedLetters,
-    computeFilteredMatches,
-  ]);
+  }, [computeFilteredMatches]);
 
   //Get the filtered array of 5 letter words;
   useEffect(() => {
-      loadWords().then(({filtered}) => {
-        //setWords(words);
-        setFiltered(filtered);
-      });
-    }, []);
-  
+    loadWords().then(({ filtered }) => {
+      setFiltered(filtered);
+    });
+  }, []);
 
   // Small helper to render a single worldle box (display-only input)
   const renderWorldleBox = (value, placeholder = "") => {
@@ -283,6 +349,57 @@ export default function WordleHelper() {
         </div>
       </div>
 
+      {/* NEW: Confirmed Letters form */}
+      <div className="mb-4">
+        <h5>Word's Confirmed Letters (select multiple by holding down CTR/Command)</h5>
+        <div className="row">
+          <div className="col-md-6">
+            <select
+              multiple
+              className="form-control"
+              value={confirmedLetters}
+              onChange={handleConfirmedChange}
+              aria-label="Confirmed letters"
+              style={{ height: 160 }}
+            >
+              {LETTERS.map((L) => (
+                <option key={L} value={L}>
+                  {L}
+                </option>
+              ))}
+            </select>
+            <div className="mt-2">
+              <button
+                className="btn btn-sm btn-outline-secondary me-2"
+                onClick={resetConfirmed}
+                type="button"
+              >
+                Reset Confirmed
+              </button>
+            </div>
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label">Selected confirmed letters</label>
+            <div>
+              {confirmedLetters.length === 0 && (
+                <div className="text-muted">No confirmed letters selected</div>
+              )}
+              {confirmedLetters.map((L) => (
+                <button
+                  key={L}
+                  type="button"
+                  className="btn btn-sm btn-outline-success me-2 mb-2"
+                  onClick={() => removeConfirmedLetter(L)}
+                >
+                  {L} &times;
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* IndexDetails form */}
       <div className="mb-4">
         <h5>Let's find this word!</h5>
@@ -301,9 +418,18 @@ export default function WordleHelper() {
                   maxLength={1}
                   placeholder="A-Z"
                 />
+                <button
+                  className="btn btn-sm btn-outline-secondary mt-1"
+                  onClick={resetIndexOne}
+                  type="button"
+                >
+                  Reset
+                </button>
               </div>
               <div>
-                <label className="form-label">Matched Letters but Exempt at First Position (hold down CTR/Command to select multiple)</label>
+                <label className="form-label">
+                  Matched Letters but Exempt at First Position (hold down CTR/Command to select multiple)
+                </label>
                 <select
                   multiple
                   className="form-control"
@@ -317,6 +443,29 @@ export default function WordleHelper() {
                     </option>
                   ))}
                 </select>
+                <button
+                  className="btn btn-sm btn-outline-secondary mt-1"
+                  onClick={resetIndexOneExempt}
+                  type="button"
+                >
+                  Reset Exempt
+                </button>
+                <div className="mt-2">
+                  <label className="form-label">Selected exempt letters</label>
+                  <div>
+                    {indexOneExempt.length === 0 && (
+                      <div className="text-muted">No exempt letters selected</div>
+                    )}
+                    {indexOneExempt.map((L) => (
+                      <span
+                        key={L}
+                        className="badge bg-secondary me-1 mb-1"
+                      >
+                        {L}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -333,9 +482,18 @@ export default function WordleHelper() {
                   maxLength={1}
                   placeholder="A-Z"
                 />
+                <button
+                  className="btn btn-sm btn-outline-secondary mt-1"
+                  onClick={resetIndexTwo}
+                  type="button"
+                >
+                  Reset
+                </button>
               </div>
               <div>
-                <label className="form-label">Matched Letters but Exempt at Second Position (hold down CTR/Command to select multiple)</label>
+                <label className="form-label">
+                  Matched Letters but Exempt at Second Position (hold down CTR/Command to select multiple)
+                </label>
                 <select
                   multiple
                   className="form-control"
@@ -349,6 +507,29 @@ export default function WordleHelper() {
                     </option>
                   ))}
                 </select>
+                <button
+                  className="btn btn-sm btn-outline-secondary mt-1"
+                  onClick={resetIndexTwoExempt}
+                  type="button"
+                >
+                  Reset Exempt
+                </button>
+                <div className="mt-2">
+                  <label className="form-label">Selected exempt letters</label>
+                  <div>
+                    {indexTwoExempt.length === 0 && (
+                      <div className="text-muted">No exempt letters selected</div>
+                    )}
+                    {indexTwoExempt.map((L) => (
+                      <span
+                        key={L}
+                        className="badge bg-secondary me-1 mb-1"
+                      >
+                        {L}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -365,9 +546,18 @@ export default function WordleHelper() {
                   maxLength={1}
                   placeholder="A-Z"
                 />
+                <button
+                  className="btn btn-sm btn-outline-secondary mt-1"
+                  onClick={resetIndexThree}
+                  type="button"
+                >
+                  Reset
+                </button>
               </div>
               <div>
-                <label className="form-label">Matched Letters but Exempt at Third Position (hold down CTR/Command to select multiple)</label>
+                <label className="form-label">
+                  Matched Letters but Exempt at Third Position (hold down CTR/Command to select multiple)
+                </label>
                 <select
                   multiple
                   className="form-control"
@@ -381,6 +571,29 @@ export default function WordleHelper() {
                     </option>
                   ))}
                 </select>
+                <button
+                  className="btn btn-sm btn-outline-secondary mt-1"
+                  onClick={resetIndexThreeExempt}
+                  type="button"
+                >
+                  Reset Exempt
+                </button>
+                <div className="mt-2">
+                  <label className="form-label">Selected exempt letters</label>
+                  <div>
+                    {indexThreeExempt.length === 0 && (
+                      <div className="text-muted">No exempt letters selected</div>
+                    )}
+                    {indexThreeExempt.map((L) => (
+                      <span
+                        key={L}
+                        className="badge bg-secondary me-1 mb-1"
+                      >
+                        {L}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -397,9 +610,18 @@ export default function WordleHelper() {
                   maxLength={1}
                   placeholder="A-Z"
                 />
+                <button
+                  className="btn btn-sm btn-outline-secondary mt-1"
+                  onClick={resetIndexFour}
+                  type="button"
+                >
+                  Reset
+                </button>
               </div>
               <div>
-                <label className="form-label">Matched Letters but Exempt at Fourth Position (hold down CTR/Command to select multiple)</label>
+                <label className="form-label">
+                  Matched Letters but Exempt at Fourth Position (hold down CTR/Command to select multiple)
+                </label>
                 <select
                   multiple
                   className="form-control"
@@ -413,6 +635,29 @@ export default function WordleHelper() {
                     </option>
                   ))}
                 </select>
+                <button
+                  className="btn btn-sm btn-outline-secondary mt-1"
+                  onClick={resetIndexFourExempt}
+                  type="button"
+                >
+                  Reset Exempt
+                </button>
+                <div className="mt-2">
+                  <label className="form-label">Selected exempt letters</label>
+                  <div>
+                    {indexFourExempt.length === 0 && (
+                      <div className="text-muted">No exempt letters selected</div>
+                    )}
+                    {indexFourExempt.map((L) => (
+                      <span
+                        key={L}
+                        className="badge bg-secondary me-1 mb-1"
+                      >
+                        {L}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -429,9 +674,18 @@ export default function WordleHelper() {
                   maxLength={1}
                   placeholder="A-Z"
                 />
+                <button
+                  className="btn btn-sm btn-outline-secondary mt-1"
+                  onClick={resetIndexFive}
+                  type="button"
+                >
+                  Reset
+                </button>
               </div>
               <div>
-                <label className="form-label">Matched Letters but Exempt at Fifth Position (hold down CTR/Command to select multiple)</label>
+                <label className="form-label">
+                  Matched Letters but Exempt at Fifth Position (hold down CTR/Command to select multiple)
+                </label>
                 <select
                   multiple
                   className="form-control"
@@ -445,6 +699,29 @@ export default function WordleHelper() {
                     </option>
                   ))}
                 </select>
+                <button
+                  className="btn btn-sm btn-outline-secondary mt-1"
+                  onClick={resetIndexFiveExempt}
+                  type="button"
+                >
+                  Reset Exempt
+                </button>
+                <div className="mt-2">
+                  <label className="form-label">Selected exempt letters</label>
+                  <div>
+                    {indexFiveExempt.length === 0 && (
+                      <div className="text-muted">No exempt letters selected</div>
+                    )}
+                    {indexFiveExempt.map((L) => (
+                      <span
+                        key={L}
+                        className="badge bg-secondary me-1 mb-1"
+                      >
+                        {L}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

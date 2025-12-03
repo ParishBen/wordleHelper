@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { loadWords } from "./wordle.js";
 import WordleHelper from "./wordleHelper.js";
-import LetterSelector from "./formEx.js";
 
 function App() {
   const [words, setWords] = useState([]);
@@ -24,6 +23,7 @@ function App() {
       <br/>
       <div>
         <WordleHelper/>
+        {/* <WordleHelper/> */}
       </div>
       {/* <div><LetterSelector/></div> */}
     </div>
